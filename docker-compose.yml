@@ -1,0 +1,35 @@
+version: '3.3'
+services:
+  db:
+    container_name: you_dom_db
+    hostname: db
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command: [ '--character-set-server=utf8', '--collation-server=utf8_unicode_ci', '--skip-character-set-client-handshake', '--sql-mode=' ]
+  adminer:
+    container_name: you_dom_adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  bitrix:
+    container_name: you_dom_bitrix
+    build: ./
+    ports:
+      - 80:80
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - ./:/home/bitrix/www
+    depends_on:
+      - db
+    privileged: true
+    tmpfs:
+      - /run
+      - /run/lock
+    environment:
+      XDEBUG_CONFIG: remote_host=10.0.75.1
